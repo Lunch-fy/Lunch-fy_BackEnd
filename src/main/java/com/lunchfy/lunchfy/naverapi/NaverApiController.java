@@ -7,13 +7,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-@RequestMapping
+@RequestMapping("/api/search")
 public class NaverApiController {
 
-    @GetMapping
-    public ResponseEntity search (@RequestParam String SearchThing) {
-        return new ResponseEntity(SearchThing, HttpStatus.OK);
+    public NaverApiService myNaverApiService = new NaverApiService();
+    @GetMapping("/test")
+    public ResponseEntity search (@RequestParam String searchThing) {
+        String list = myNaverApiService.placeResponse(searchThing);
+        //List<Place> list = myNaverApiService.placeResponse(searchThing);
+        return new ResponseEntity(list, HttpStatus.OK);
     }
 
 }
+

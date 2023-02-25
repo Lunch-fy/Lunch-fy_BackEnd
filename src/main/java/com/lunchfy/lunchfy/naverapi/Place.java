@@ -1,12 +1,12 @@
 package com.lunchfy.lunchfy.naverapi;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class Place {
 
     private String placeName;

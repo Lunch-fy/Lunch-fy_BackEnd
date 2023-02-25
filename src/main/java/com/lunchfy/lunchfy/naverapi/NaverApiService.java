@@ -1,5 +1,9 @@
 package com.lunchfy.lunchfy.naverapi;
 
+import lombok.RequiredArgsConstructor;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,11 +17,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class NaverApiService {
 
-    public String placeResponse(String searchThings) {
-        ByteBuffer buffer = StandardCharsets.UTF_8.encode(searchThings);
-        String encode = StandardCharsets.UTF_8.decode(buffer).toString();
+    //private final NaverApiRepository naverApiRepository;
+
+    private ByteBuffer buffer;
+    private String encode;
+
+    public List<Place> placeResponse(String searchThings) {
+        buffer = StandardCharsets.UTF_8.encode(searchThings);
+        encode = StandardCharsets.UTF_8.decode(buffer).toString();
 
         URI uri = UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com")
@@ -40,19 +50,32 @@ public class NaverApiService {
 
         ResponseEntity<String> result = restTemplate.exchange(req, String.class); //Json << 반환
 
-        return result.getBody();
-        //return parsingPlace(result);
+        return parsingPlace(result);
     }
 
-    /*
     public List<Place> parsingPlace(ResponseEntity<String> result)
     {
-        //item 갯수를 total 갯수만큼 반복하면서 List에 정보를 add해준다.
-        //return값은 반복끝난 List
-        List<Place> list = null;
-        for(int i=0; i<= list.size(); i++)
+        List<Place> list = new ArrayList<>();
+
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject object = (JSONObject) parser.parse(result.getBody());
+            JSONArray placeItems = (JSONArray) object.get("items");
+            for (int i = 0; i < placeItems.size(); i++) {
+                object = (JSONObject) placeItems.get(i);
+                String placeName = (String) object.get("title");
+                String category = (String) object.get("category");
+                String address = (String) object.get("roadAddress");
+                double mapx = 0;
+                double mapy = 0;
+
+                list.add(new Place(placeName, category, address, mapx, mapy));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return list;
     }
-    */
+
 }

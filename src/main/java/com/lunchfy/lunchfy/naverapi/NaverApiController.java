@@ -1,5 +1,6 @@
 package com.lunchfy.lunchfy.naverapi;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,14 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/search")
 public class NaverApiController {
 
-    public NaverApiService myNaverApiService = new NaverApiService();
+    private final NaverApiService myNaverApiService;
+
     @GetMapping("/test")
     public ResponseEntity search (@RequestParam String searchThing) {
-        String list = myNaverApiService.placeResponse(searchThing);
-        //List<Place> list = myNaverApiService.placeResponse(searchThing);
+        List<Place> list = myNaverApiService.placeResponse(searchThing);
         return new ResponseEntity(list, HttpStatus.OK);
     }
 

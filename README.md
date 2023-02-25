@@ -9,7 +9,7 @@
 ### FrontEnd
 `Javascript` `React`
 ### BackEnd
-`Java 17` `Gradle` `Spring Boot`
+`Java 17` `Gradle` `Spring Boot` 
 
 ## 👨‍👨‍👧‍👧 Members
 --- 
@@ -22,3 +22,6 @@
 |김광현|이창우|  
 |------|------|  
 |[Neroat](https://github.com/Neroat)|[SATE000](https://github.com/SATE000)|
+
+## Using API
+`Naver Map API` `Naver OpenAPI` 

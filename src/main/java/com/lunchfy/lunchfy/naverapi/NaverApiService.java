@@ -24,14 +24,15 @@ public class NaverApiService {
 
     private ByteBuffer buffer;
     private String encode;
+    private URI uri;
 
 
+    //Geocoding api사용을 위한 함수
     public double[] geoResponse(String location) {
-        String[] geo = new String[2];
         buffer = StandardCharsets.UTF_8.encode(location);
         encode = StandardCharsets.UTF_8.decode(buffer).toString();
 
-        URI uri = UriComponentsBuilder
+        uri = UriComponentsBuilder
                 .fromUriString("https://naveropenapi.apigw.ntruss.com")
                 .path("/map-geocode/v2/geocode")
                 .queryParam("query", encode)
@@ -39,23 +40,16 @@ public class NaverApiService {
                 .build()
                 .toUri();
 
-        RestTemplate restTemplate = new RestTemplate();
-
-        RequestEntity<Void> req = RequestEntity
-                .get(uri)
-                .header("X-NCP-APIGW-API-KEY-ID", "xsv7gw5z6r")
-                .header("X-NCP-APIGW-API-KEY", "HWtsyaPDJq9rnIen0MFZnvtgqpJ6cnwrE5nWWHLr")
-                .build();
-
-        ResponseEntity<String> result = restTemplate.exchange(req, String.class); //Json << 반환
-
-        return parsingGeo(result);
+        return parsingGeo(getResponseEntity(uri, "X-NCP-APIGW-API-KEY-ID", "xsv7gw5z6r",
+                "X-NCP-APIGW-API-KEY", "HWtsyaPDJq9rnIen0MFZnvtgqpJ6cnwrE5nWWHLr"));
     }
+
+    //검색한 내용의 음식점을 찾기위한 네이버지도api 사용 함수
     public List<Place> placeResponse(String searchThings) {
         buffer = StandardCharsets.UTF_8.encode(searchThings);
         encode = StandardCharsets.UTF_8.decode(buffer).toString();
 
-        URI uri = UriComponentsBuilder
+        uri = UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com")
                 .path("/v1/search/local.json")
                 .queryParam("query", encode)
@@ -66,19 +60,11 @@ public class NaverApiService {
                 .build()
                 .toUri();
 
-        RestTemplate restTemplate = new RestTemplate();
-
-        RequestEntity<Void> req = RequestEntity
-                .get(uri)
-                .header("X-Naver-Client-Id", "lrhq41D596jlFArWopIi")
-                .header("X-Naver-Client-Secret", "oKfHT8qCnU")
-                .build();
-
-        ResponseEntity<String> result = restTemplate.exchange(req, String.class); //Json << 반환
-
-        return parsingPlace(result);
+        return parsingPlace(getResponseEntity(uri, "X-Naver-Client-Id", "lrhq41D596jlFArWopIi",
+                "X-Naver-Client-Secret", "oKfHT8qCnU"));
     }
 
+    //네이버지도api에서 받은 json을 가공하기 위한 함수
     public List<Place> parsingPlace(ResponseEntity<String> result)
     {
         List<Place> list = new ArrayList<>();
@@ -92,6 +78,9 @@ public class NaverApiService {
                 String placeName = (String) object.get("title");
                 String category = (String) object.get("category");
                 String address = (String) object.get("roadAddress");
+                if (address.equals("")) {
+                    address = (String) object.get("address");
+                }
 
                 double[] mapXY = geoResponse(address);
                 list.add(new Place(placeName, category, address, mapXY));
@@ -103,6 +92,7 @@ public class NaverApiService {
         return list;
     }
 
+    //Geocoding 에서 받은 json을 가공하기 위한 함수
     public double[] parsingGeo(ResponseEntity<String> result)
     {
         double[] mapxy = new double[2];
@@ -114,12 +104,26 @@ public class NaverApiService {
             object = (JSONObject) placeItems.get(0);
             mapxy[0] = Double.parseDouble((String) object.get("x"));
             mapxy[1] = Double.parseDouble((String) object.get("y"));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return mapxy;
+    }
+
+    //json을 받기 위해서 api에 로그인하는 함수
+    private ResponseEntity<String> getResponseEntity(URI uri, String idName, String id, String pwdName, String pwd) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        RequestEntity<Void> req = RequestEntity
+                .get(uri)
+                .header(idName, id)
+                .header(pwdName, pwd)
+                .build();
+
+        ResponseEntity<String> result = restTemplate.exchange(req, String.class);
+
+        return result;
     }
 
 }

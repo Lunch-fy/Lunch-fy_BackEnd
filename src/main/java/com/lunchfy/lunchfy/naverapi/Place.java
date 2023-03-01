@@ -14,5 +14,6 @@ public class Place {
     private String category;
     private String address;
     private double[] mapXY;
+    private String[] imageUrl;
 
 }

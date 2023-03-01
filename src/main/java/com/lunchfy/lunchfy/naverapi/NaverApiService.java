@@ -20,14 +20,40 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NaverApiService {
 
-    //private final NaverApiRepository naverApiRepository;
-
     private ByteBuffer buffer;
     private String encode;
     private URI uri;
+    
+    //Google Custom API를 사용하여 가게 이름을 기준으로 검색된 결과 json을 반환하는 함수
+    public String[] imgUrlResponse(String location) {
 
+        buffer = StandardCharsets.UTF_8.encode(location);
+        encode = StandardCharsets.UTF_8.decode(buffer).toString();
 
-    //Geocoding api사용을 위한 함수
+        uri = UriComponentsBuilder
+                .fromUriString("https://customsearch.googleapis.com")
+                .path("/customsearch/v1")
+                .queryParam("cx", "d499d085af3454d83")
+                .queryParam("fileType", "jpg")
+                .queryParam("num", "5")
+                .queryParam("q", encode)
+                .queryParam("searchType", "image")
+                .queryParam("key", "AIzaSyDwdiKDGXT5z7ZPa0wE0ILWpxKwdEjqWJU")
+                .encode()
+                .build()
+                .toUri();
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        RequestEntity<Void> req = RequestEntity
+                .get(uri)
+                .build();
+
+        ResponseEntity<String> result = restTemplate.exchange(req, String.class);
+        return parsingImage(result);
+    }
+
+    //Geocoding API를 사용하여 가게이름을 넣으면 좌표를 포함한 정보들을 json으로 반환하는 함수
     public double[] geoResponse(String location) {
         buffer = StandardCharsets.UTF_8.encode(location);
         encode = StandardCharsets.UTF_8.decode(buffer).toString();
@@ -73,6 +99,7 @@ public class NaverApiService {
             JSONParser parser = new JSONParser();
             JSONObject object = (JSONObject) parser.parse(result.getBody());
             JSONArray placeItems = (JSONArray) object.get("items");
+
             for (int i = 0; i < placeItems.size(); i++) {
                 object = (JSONObject) placeItems.get(i);
                 String placeName = (String) object.get("title");
@@ -83,7 +110,11 @@ public class NaverApiService {
                 }
 
                 double[] mapXY = geoResponse(address);
-                list.add(new Place(placeName, category, address, mapXY));
+                String configPN = placeName;
+                configPN = configPN.replaceAll("<b>","");
+                configPN = configPN.replaceAll("</b>"," ");
+                String[] imgUrls = imgUrlResponse(configPN);
+                list.add(new Place(configPN, category, address, mapXY, imgUrls));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,13 +133,39 @@ public class NaverApiService {
             JSONObject object = (JSONObject) parser.parse(result.getBody());
             JSONArray placeItems = (JSONArray) object.get("addresses");
             object = (JSONObject) placeItems.get(0);
-            mapxy[0] = Double.parseDouble((String) object.get("x"));
-            mapxy[1] = Double.parseDouble((String) object.get("y"));
+
+            mapxy[1] = Double.parseDouble((String) object.get("x"));
+            mapxy[0] = Double.parseDouble((String) object.get("y"));
+            //원래 순서상 x(0) y(1)이 들어가는것이 맞지만 네이버 Map API 특성상 반대로 넣어야함
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return mapxy;
+    }
+
+    //Google Custom API에서 받은 json을 가공하기 위한 함수
+    public String[] parsingImage(ResponseEntity<String> result)
+    {
+        String[] imageUrls = new String[5];
+
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject object = (JSONObject) parser.parse(result.getBody());
+            JSONArray placeItems = (JSONArray) object.get("items");
+
+            for (int i = 0; i < placeItems.size(); i++) {
+                object = (JSONObject) placeItems.get(i);
+                imageUrls[i] = (String) object.get("link");
+            }
+        }
+
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return imageUrls;
     }
 
     //json을 받기 위해서 api에 로그인하는 함수

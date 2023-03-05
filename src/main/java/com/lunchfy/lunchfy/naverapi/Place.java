@@ -2,7 +2,6 @@ package com.lunchfy.lunchfy.naverapi;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -12,8 +11,12 @@ public class Place {
 
     private String placeName;
     private String category;
+    private String distance;
+    private String phone;
+    private String url;
     private String address;
-    private double[] mapXY;
-    private String[] imageUrl;
+    private String roadAddress;
+    private String x;
+    private String y;
 
 }

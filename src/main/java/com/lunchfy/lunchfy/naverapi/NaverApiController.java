@@ -1,6 +1,5 @@
 package com.lunchfy.lunchfy.naverapi;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
@@ -19,17 +18,74 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/lunchfy")
+@RequestMapping("/api/lunch-fy")
 public class NaverApiController {
     private ByteBuffer buffer;
     private String encode;
     private final NaverApiService myNaverApiService;
 
-    @GetMapping("/search")
-    public ResponseEntity search (@RequestParam String searchThing) {
-        List<Place> list = myNaverApiService.placeResponse(searchThing);
+    @GetMapping("/search-loc")
+    public ResponseEntity search (@RequestParam String location, @RequestParam String tag) {
+        List<Place> list = myNaverApiService.locCombineData(location, tag);
         return new ResponseEntity(list, HttpStatus.OK);
     }
 
+    @GetMapping("/search-key")
+    public ResponseEntity search2 (@RequestParam String key, @RequestParam String tag) {
+        List<Place> list = myNaverApiService.keyCombineData(key, tag);
+        return new ResponseEntity(list, HttpStatus.OK);
+    }
 
+    @GetMapping("/test")
+    public String test (@RequestParam String query) {
+        ByteBuffer buffer = StandardCharsets.UTF_8.encode(query);
+        String encode = StandardCharsets.UTF_8.decode(buffer).toString();
+
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://dapi.kakao.com")
+                .path("/v2/local/search/keyword.json")
+                .queryParam("query", encode)
+                .queryParam("x", 126.93068622168563)
+                .queryParam("y", 37.40326558195946)
+                .queryParam("radius", 1000)
+                .encode()
+                .build()
+                .toUri();
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        RequestEntity<Void> req = RequestEntity
+                .get(uri)
+                .header("Authorization", "KakaoAK "+"4f97d3d265a2973723f41e4114c587cb")
+                .build();
+
+        ResponseEntity<String> result = restTemplate.exchange(req, String.class);
+
+        return result.getBody();
+    }
+
+    @GetMapping("/test2")
+    public String test2 (@RequestParam String query) {
+        ByteBuffer buffer = StandardCharsets.UTF_8.encode(query);
+        String encode = StandardCharsets.UTF_8.decode(buffer).toString();
+
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://dapi.kakao.com")
+                .path("/v2/local/search/address.json")
+                .queryParam("query", encode)
+                .encode()
+                .build()
+                .toUri();
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        RequestEntity<Void> req = RequestEntity
+                .get(uri)
+                .header("Authorization", "KakaoAK "+"4f97d3d265a2973723f41e4114c587cb")
+                .build();
+
+        ResponseEntity<String> result = restTemplate.exchange(req, String.class);
+
+        return result.getBody();
+    }
 }

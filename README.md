@@ -24,4 +24,4 @@
 |[Neroat](https://github.com/Neroat)|[SATE000](https://github.com/SATE000)|
 
 ## Using API
-`Naver Map API` `Naver OpenAPI` 
+`Kakao Map API` ~~`Naver Map API`~~ ~~`Naver OpenAPI`~~ ~~`Google Custom Search API`~~ 

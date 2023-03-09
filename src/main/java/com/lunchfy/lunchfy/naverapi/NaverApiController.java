@@ -34,7 +34,23 @@ public class NaverApiController {
     public ResponseEntity search2 (@RequestParam String key, @RequestParam String tag) {
         List<Place> list = myNaverApiService.keyCombineData(key, tag);
         System.out.println("search-loc 실행됨");
-        return new ResponseEntity(list , HttpStatus.OK);
+        return new ResponseEntity(list ,  HttpStatus.OK);
+    }
+
+    @GetMapping("/xy-key")
+    public String[] xyTest(@RequestParam String key)
+    {
+        String[] xy = new String[2];
+        xy = myNaverApiService.parsingLocationXY(myNaverApiService.placeResponse(key));
+        return xy;
+    }
+
+    @GetMapping("/xy-loc")
+    public String[] xyTest2(@RequestParam String location)
+    {
+        String[] xy = new String[2];
+        xy = myNaverApiService.parsingLocationXY(myNaverApiService.locationResponse(location));
+        return xy;
     }
 
     @GetMapping("/test")

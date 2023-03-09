@@ -38,6 +38,7 @@ public class NaverApiController {
     }
 
     @GetMapping("/xy-key")
+    @CrossOrigin(origins = "http://localhost:3000")
     public String[] xyTest(@RequestParam String key)
     {
         String[] xy = new String[2];
@@ -46,6 +47,7 @@ public class NaverApiController {
     }
 
     @GetMapping("/xy-loc")
+    @CrossOrigin(origins = "http://localhost:3000")
     public String[] xyTest2(@RequestParam String location)
     {
         String[] xy = new String[2];

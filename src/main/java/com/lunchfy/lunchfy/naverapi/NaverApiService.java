@@ -29,8 +29,9 @@ public class NaverApiService {
     //Request Ex) key = "대림대학교" tag = "햄버거"
     public List<Place> keyCombineData(String key, String tag) {
         String location = parsingLocation(placeResponse(key));
-        String xy[] = parsingLocationXY(locationResponse(location));
-        return placeResponse(tag, xy);
+        return locCombineData(location, tag);
+        //String xy[] = parsingLocationXY(locationResponse(location));
+        //return placeResponse(tag, xy);
     }
 
     //lDC는 Ex) 안양시 동안구 임곡로 29 와 같은 정확한 주소로 입력을 해야한다.
@@ -93,7 +94,6 @@ public class NaverApiService {
             JSONParser parser = new JSONParser();
             JSONObject object = (JSONObject) parser.parse(result.getBody());
             JSONArray placeItems = (JSONArray) object.get("documents");
-
             for (int i = 0; i < placeItems.size(); i++) {
                 object = (JSONObject) placeItems.get(i);
                 String placeName = (String) object.get("place_name");

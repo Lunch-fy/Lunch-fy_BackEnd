@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -25,15 +22,19 @@ public class NaverApiController {
     private final NaverApiService myNaverApiService;
 
     @GetMapping("/search-loc")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity search (@RequestParam String location, @RequestParam String tag) {
         List<Place> list = myNaverApiService.locCombineData(location, tag);
+        System.out.println("search-loc 실행됨");
         return new ResponseEntity(list, HttpStatus.OK);
     }
 
     @GetMapping("/search-key")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity search2 (@RequestParam String key, @RequestParam String tag) {
         List<Place> list = myNaverApiService.keyCombineData(key, tag);
-        return new ResponseEntity(list, HttpStatus.OK);
+        System.out.println("search-loc 실행됨");
+        return new ResponseEntity(list , HttpStatus.OK);
     }
 
     @GetMapping("/test")
@@ -60,7 +61,6 @@ public class NaverApiController {
                 .build();
 
         ResponseEntity<String> result = restTemplate.exchange(req, String.class);
-
         return result.getBody();
     }
 

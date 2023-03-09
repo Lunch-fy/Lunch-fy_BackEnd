@@ -145,7 +145,9 @@ public class NaverApiService {
                 .queryParam("query", encode)
                 .queryParam("x", xy[0])
                 .queryParam("y", xy[1])
+                .queryParam("radius", 2000)
                 .queryParam("size",15)
+                .queryParam("sort", "distance")
                 .encode()
                 .build()
                 .toUri();
